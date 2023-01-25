@@ -22,16 +22,11 @@ runs-on: ubuntu-latest
 steps:
 
 - name: Setup Enclave
-  uses: enclave-alistair/enclave-setup-action@main
+  uses: enclave-alistair/enclave-setup-action@v1
   with:
   # Enrolment key is a secret (brings you into your enclave account)
+  # Use an Ephemeral enrolment key, to remove the system from your account once the action is finished.
   enrolment-key: ${{ secrets.ENCLAVE_ENROLMENT_KEY }}
-
-  # We need the orgId and API key in order to revoke the system at 
-  # the end of the run, so we don't use up your available systems.
-  orgId: a09a8d4dd4ea4c12a33a51e3effac9fa
-  apiKey: ${{ secrets.ENCLAVE_API_KEY }}
-
 
 - name: Wait for Connection to your on-prem server 
   # Name here comes from the config in the portal.
@@ -47,9 +42,9 @@ You can check out the Actions results for a run [here](https://github.com/enclav
 The enclave setup in this test, done from the [Enclave Portal](https://portal.enclave.io):
 
 - An on-prem web-server running in my network, running enclave, and tagged with `gh-test-server`.  DNS configured to give it the name `on-prem-server.enclave`.
-- An automatic enrolment key (`GH Actions Test Runner`), that auto-tags anything enrolled with that key with `gh-runner`.
+- An ephemeral enrolment key (`GH Actions Test Runner`), that auto-tags anything enrolled with that key with `gh-runner`.
 - A policy `CI -> OnPrem`, that says anything tagged with `gh-runner` can connect to `gh-test-server`.
 
 That config is all that's needed; once the runner starts, it auto-enrols, policy defines it should connect to the on prem server, and it does so.
 
-The system is revoked via our public APIs at the end of the run so it doesn't use up an available seat.
+We use an ephemeral enrolment key, so when the runner stops, the system is removed from your organisation.
